@@ -1,0 +1,116 @@
+아무리 commit, pull,push해도 페이지가 업로드가 안돼서 이렇게라도 올려요..ㅠㅠ 14주차에 배웠다 지도에서 현 위치 찾기 코드입니다
+구현을 하지 못하였던 코드입니다
+
+package com.jiyun.appdevelop;
+
+import android.content.Context;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+
+import com.jiyun.appdevelop.R;
+
+public class MainActivity extends AppCompatActivity
+        implements AutoPermissionListner{
+
+    private static final String TAG = "LOCATION";
+    TextView textView;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        textView = findViewById(R.id.textView);
+
+        Button button = findViewById(R.id.button);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startLocationService();
+            }
+        });
+    }
+
+    public void startLocationService() {
+        LocationManager manager = (LocationManager)
+                getSystemService(Context.LOCATION_SERVICE);
+
+        try {
+            Location location = manager
+                    .getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+            if(location != null) {
+                double latitude = location.getLatitude();
+                double longitude = location.getLongitude();
+                Log.d(TAG, "startLocationService()");
+                String message = "최근 위치 -> 위도 : " + latitude
+                        + "\n 경도: " + longitude;
+
+                textView.setText(message);
+
+                GPSListner gpsListner = new GPSListner();
+                long minTime = 10000;
+                float minDistance = 0;
+
+                manager.requestLocationUpdates(LocationManager.GPS_PROVIDER,minTime,minDistance, gpsListner);
+              }
+            } catch (SecurityException e) {
+            e.printStackTrace();
+
+        }
+    }
+
+    @Override
+    public void onDenied(int i, String[] strings) {
+
+    }
+
+    @Override
+    public void onRequestPermissionResult(int requestCode, @NonNull String[] pesmission
+         super.onRequestPermissionResult(requestCode, permission, grantResults);
+    }
+
+    @Override
+    public void OnGranted(int i,String[] strings) {
+
+    }
+
+    class GPSListner implements LocationListener {
+
+        @Override
+        public void onLocationChanged(Location location) {
+            Double latitude =  location.getLatitude();
+            Double longitude =  location.getLongitude();
+
+            String message = "최근 위치 -> 위도 : "+latitude
+                    + "\n 경도: " + longitude;
+            textView.setText(message);
+
+            Log.d(TAG, "onLocationChanged()");
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+
+        }
+    }
+}
